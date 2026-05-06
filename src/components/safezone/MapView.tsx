@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { MapPin, Loader2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { MapPin, Loader2, Crown, Lock } from 'lucide-react';
 import type { Incident, Severity } from '@/types/incident';
 import { getCoords, jitter } from '@/lib/cityCoords';
+import PremiumModal from './PremiumModal';
 
 interface MapViewProps {
   incidents: Incident[];
@@ -31,6 +32,8 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
   const mapRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
   const [ready, setReady] = React.useState<boolean>(typeof window !== 'undefined' && !!window.L);
+  const [isPremium, setIsPremium] = React.useState(() => localStorage.getItem('szg_premium') === 'true');
+  const [showPremiumModal, setShowPremiumModal] = React.useState(false);
 
   // Wait for Leaflet from CDN to load
   useEffect(() => {
@@ -200,10 +203,11 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
   }, [incidents, ready, onIncidentSelect]);
 
   return (
+    <>
     <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0a1020]">
       <div
         ref={containerRef}
-        className="w-full h-[520px] sm:h-[600px]"
+        className={`w-full h-[520px] sm:h-[600px] ${!isPremium ? 'blur-sm pointer-events-none select-none' : ''}`}
         style={{ background: '#0a1020' }}
       />
       {!ready && (
@@ -215,7 +219,30 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
         </div>
       )}
 
-      {/* Legend overlay */}
+      {/* Premium paywall overlay */}
+      {!isPremium && (
+        <div className="absolute inset-0 z-[500] flex flex-col items-center justify-center bg-[#0a1020]/60 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0f1622]/95 border border-white/10 shadow-2xl max-w-sm mx-4 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
+              <Lock className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white mb-1">Premium Feature</h3>
+              <p className="text-slate-400 text-sm">Die Live-Karte ist nur für Premium-Nutzer verfügbar. Erhalte Echtzeit-Einblicke zu Vorfällen in deiner Stadt.</p>
+            </div>
+            <button
+              onClick={() => setShowPremiumModal(true)}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2"
+            >
+              <Crown className="w-4 h-4" />
+              Premium freischalten – 2,99€/Monat
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Legend overlay - only show when premium */}
+      {isPremium && (
       <div className="absolute bottom-4 left-4 z-[400] flex flex-col gap-1.5 p-3 rounded-xl bg-[#0f1622]/90 backdrop-blur border border-white/10 text-xs text-slate-200">
         <div className="flex items-center gap-2 mb-0.5 font-semibold">
           <MapPin className="w-3.5 h-3.5 text-cyan-400" />
@@ -231,6 +258,7 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
           </div>
         ))}
       </div>
+      )}
 
       <style>{`
         @keyframes szgPulse {
@@ -265,6 +293,12 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
         .szg-marker { background: transparent !important; border: none !important; }
       `}</style>
     </div>
+    <PremiumModal
+      isOpen={showPremiumModal}
+      onClose={() => setShowPremiumModal(false)}
+      onSuccess={() => setIsPremium(true)}
+    />
+    </>
   );
 };
 
