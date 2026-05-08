@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Send, Loader2, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { INCIDENT_TYPES, SEVERITIES } from '@/types/incident';
 import type { Severity, Incident } from '@/types/incident';
 
@@ -54,6 +54,11 @@ const ReportModal: React.FC<ReportModalProps> = ({ open, onClose, onSubmitted })
     setSubmitting(true);
 
     try {
+      if (!isSupabaseConfigured() || !supabase) {
+        setError('Supabase ist nicht konfiguriert. Bitte Umgebungsvariablen setzen.');
+        return;
+      }
+
       // Subscribe email to CRM if provided
       if (email.trim()) {
         fetch('https://famous.ai/api/crm/69f4ca634aa1fe94cf27bd45/subscribe', {
@@ -68,22 +73,31 @@ const ReportModal: React.FC<ReportModalProps> = ({ open, onClose, onSubmitted })
       }
 
       // 1. AI moderation
-      const { data: modData, error: modErr } = await supabase.functions.invoke(
-        'moderate-incident',
-        {
-          body: {
-            city: city.trim(),
-            area: area.trim(),
-            incident_type: incidentType,
-            severity,
-            description: description.trim(),
-          },
-        }
-      );
+      let decision = 'pending';
+      let confidence = 0.5;
+      let reason = 'Manuelle Prüfung';
 
-      const decision = modData?.decision ?? 'pending';
-      const confidence = typeof modData?.confidence === 'number' ? modData.confidence : 0.5;
-      const reason = modData?.reason ?? 'Manuelle Prüfung';
+      try {
+        const { data: modData, error: modErr } = await supabase.functions.invoke(
+          'moderate-incident',
+          {
+            body: {
+              city: city.trim(),
+              area: area.trim(),
+              incident_type: incidentType,
+              severity,
+              description: description.trim(),
+            },
+          }
+        );
+        if (!modErr && modData) {
+          decision = modData.decision ?? 'pending';
+          confidence = typeof modData.confidence === 'number' ? modData.confidence : 0.5;
+          reason = modData.reason ?? 'Manuelle Prüfung';
+        }
+      } catch (modError) {
+        console.warn('AI moderation failed, defaulting to pending:', modError);
+      }
 
       // 2. Insert incident
       const status = decision === 'approved' ? 'approved' : decision === 'rejected' ? 'rejected' : 'pending';

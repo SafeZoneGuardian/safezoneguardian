@@ -10,7 +10,7 @@ import About from './safezone/About';
 import Footer from './safezone/Footer';
 import ReportModal from './safezone/ReportModal';
 import { Plus, List, Map as MapIcon } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type { Incident, Severity } from '@/types/incident';
 import { INCIDENT_TYPES } from '@/types/incident';
 
@@ -34,16 +34,25 @@ const AppLayout: React.FC = () => {
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const { data, error } = await supabase
-        .from('incidents')
-        .select('*')
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false });
-      if (!active) return;
-      if (error) {
-        console.error(error);
-      } else {
-        setIncidents((data ?? []) as Incident[]);
+      if (!isSupabaseConfigured() || !supabase) {
+        console.warn('Supabase not configured, showing empty state');
+        setLoading(false);
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from('incidents')
+          .select('*')
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+        if (!active) return;
+        if (error) {
+          console.error(error);
+        } else {
+          setIncidents((data ?? []) as Incident[]);
+        }
+      } catch (err) {
+        console.error('Failed to load incidents:', err);
       }
       setLoading(false);
     };
