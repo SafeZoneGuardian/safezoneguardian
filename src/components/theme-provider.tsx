@@ -2,9 +2,15 @@
 
 import * as React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import { ThemeProviderProps } from "next-themes/dist/types"
 
 type Theme = "dark" | "light" | "system"
+
+interface ThemeProviderProps {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
+  value?: unknown
+}
 
 type ThemeContextType = {
   theme: Theme
@@ -16,12 +22,12 @@ const ThemeContext = createContext<ThemeContextType | null>(null)
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  value: _value,
+  storageKey = "theme",
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("theme")
+      const savedTheme = localStorage.getItem(storageKey)
       return (savedTheme && (savedTheme === "dark" || savedTheme === "light" || savedTheme === "system")
         ? savedTheme
         : defaultTheme) as Theme
@@ -47,9 +53,9 @@ export function ThemeProvider({
 
   const value: ThemeContextType = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem("theme", theme)
-      setTheme(theme)
+    setTheme: (newTheme: Theme) => {
+      localStorage.setItem(storageKey, newTheme)
+      setTheme(newTheme)
     },
   }
 
