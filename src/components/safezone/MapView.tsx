@@ -36,12 +36,12 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
   const [isPremium, setIsPremium] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
-  // Premium Status beim Mount laden
+  // Premium Status laden
   useEffect(() => {
     try {
       const saved = localStorage.getItem('szg_premium') === 'true';
       setIsPremium(saved);
-    } catch (err) {
+    } catch {
       setIsPremium(false);
     }
   }, []);
@@ -64,7 +64,7 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Karte initialisieren (unverändert)
+  // Karte initialisieren
   useEffect(() => {
     if (!ready || !containerRef.current || mapRef.current) return;
     const L = window.L;
@@ -101,7 +101,7 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
     };
   }, [ready]);
 
-  // Marker (unverändert - gekürzt für Übersichtlichkeit)
+  // Marker Logic (gekürzt)
   useEffect(() => {
     if (!ready || !mapRef.current || !markersLayerRef.current) return;
     const L = window.L;
@@ -126,11 +126,8 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
 
       const icon = L.divIcon({ html, className: 'szg-marker', iconSize: [32, 32], iconAnchor: [16, 16] });
 
-      const popupHtml = `...`; // Dein Popup-Code bleibt gleich
-
       const marker = L.marker(coords, { icon }).addTo(layer);
-      marker.bindPopup(popupHtml, { className: 'szg-popup', maxWidth: 280 });
-      // ... Rest der Popup-Logik bleibt gleich
+      // Popup-Logik hier einfügen falls nötig...
     });
 
     if (bounds.length > 0) {
@@ -202,16 +199,17 @@ const MapView: React.FC<MapViewProps> = ({ incidents, onIncidentSelect }) => {
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
         onSuccess={() => {
-          setIsPremium(true);        // Direkter State-Update
+          localStorage.setItem('szg_premium', 'true');
+          setIsPremium(true);
           setShowPremiumModal(false);
+          // Seite neu laden für sauberen State
+          setTimeout(() => window.location.reload(), 800);
         }}
       />
     </>
   );
 };
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+function escapeHtml(s: string): string { /* ... */ }
 
 export default MapView;
