@@ -1,4 +1,4 @@
-
+import React, { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,22 +10,34 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ThemeProvider defaultTheme="dark">
+const App = () => {
 
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
-);
+  // === CRISP CHAT (auf der linken Seite) ===
+  useEffect(() => {
+    if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) {
+      return;
+    }
 
-export default App;
+    window.$crisp = [];
+    window.CRISP_WEBSITE_ID = "f8df0bc3-ed86-4f5c-bd08-ee77d29ffb48";
+
+    const script = document.createElement("script");
+    script.src = "https://client.crisp.chat/l.js";
+    script.async = true;
+    document.head.appendChild(script);
+
+    // Chat nach links verschieben
+    const interval = setInterval(() => {
+      if (window.$crisp) {
+        window.$crisp.push(["config", "position:reverse", [true]]);
+        window.$crisp.push(["do", "chat:show"]);
+        clearInterval(interval);
+      }
+    }, 1200);
+  }, []);
+
+  // === SERVICE WORKER CACHE BUSTING (gegen White Screen nach Deploy) ===
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
