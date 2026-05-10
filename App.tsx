@@ -12,7 +12,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
 
-  // === CRISP CHAT (auf der linken Seite) ===
+  // === CRISP CHAT (links) ===
   useEffect(() => {
     if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) {
       return;
@@ -26,7 +26,6 @@ const App = () => {
     script.async = true;
     document.head.appendChild(script);
 
-    // Chat nach links verschieben
     const interval = setInterval(() => {
       if (window.$crisp) {
         window.$crisp.push(["config", "position:reverse", [true]]);
@@ -36,8 +35,46 @@ const App = () => {
     }, 1200);
   }, []);
 
-  // === SERVICE WORKER CACHE BUSTING (gegen White Screen nach Deploy) ===
+  // === STARKES CACHE CLEARING GEGEN WHITE SCREEN ===
   useEffect(() => {
+    // Service Worker komplett entfernen
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
+        registrations.forEach((reg) => reg.unregister());
+      });
+    }
+
+    // Alle Caches löschen
+    if (window.caches) {
+      window.caches.keys().then((names) => {
+        names.forEach((name) => {
+          window.caches.delete(name);
+        });
+      });
+    }
+
+    // Zusätzlich lokale Storage Cache-Bust (optional)
+    try {
+      localStorage.setItem('app_version', Date.now().toString());
+    } catch (e) {}
+  }, []);
+
+  return (
+    <ThemeProvider defaultTheme="dark">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+};
+
+export default App;
