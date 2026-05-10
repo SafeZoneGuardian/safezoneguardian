@@ -12,7 +12,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
 
-  // === CRISP CHAT (links positioniert) ===
+  // === CRISP CHAT (auf der linken Seite) ===
   useEffect(() => {
     if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) {
       return;
@@ -23,4 +23,36 @@ const App = () => {
 
     const script = document.createElement("script");
     script.src = "https://client.crisp.chat/l.js";
-    script.async
+    script.async = true;
+    document.head.appendChild(script);
+
+    // Chat nach links verschieben
+    const interval = setInterval(() => {
+      if (window.$crisp) {
+        window.$crisp.push(["config", "position:reverse", [true]]);
+        window.$crisp.push(["do", "chat:show"]);
+        clearInterval(interval);
+      }
+    }, 1200);
+
+  }, []);
+
+  return (
+    <ThemeProvider defaultTheme="dark">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+};
+
+export default App;
