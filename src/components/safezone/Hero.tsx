@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, AlertTriangle, Users, Sparkles } from 'lucide-react';
+import { Shield, AlertTriangle, Users } from 'lucide-react';
 
 interface HeroProps {
   onReport: () => void;
@@ -12,7 +12,6 @@ const Hero: React.FC<HeroProps> = ({ onReport, onScrollTo, stats }) => {
 
   return (
     <section className="relative overflow-hidden">
-      {/* Background gradient + map silhouette */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0f1622] via-[#111a2c] to-[#0a1020]" />
       <div className="absolute inset-0 opacity-[0.07]"
         style={{
@@ -30,8 +29,8 @@ const Hero: React.FC<HeroProps> = ({ onReport, onScrollTo, stats }) => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-cyan-300 text-xs font-medium mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
-              KI-moderierte Community-Plattform
+              <Shield className="w-3.5 h-3.5" />
+              Community-Plattform für Deutschland
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.05] tracking-tight">
               Gemeinsam{' '}
@@ -41,7 +40,7 @@ const Hero: React.FC<HeroProps> = ({ onReport, onScrollTo, stats }) => {
               unterwegs.
             </h1>
             <p className="mt-6 text-lg text-slate-300 leading-relaxed max-w-xl">
-              Bürger melden, KI prüft, Community profitiert. Erfahre in Echtzeit, wo in
+              Bürger melden, Community profitiert. Erfahre in Echtzeit, wo in
               deutschen Großstädten Vorsicht geboten ist – von Taschendiebstahl bis
               Raubdelikten.
             </p>
@@ -72,12 +71,11 @@ const Hero: React.FC<HeroProps> = ({ onReport, onScrollTo, stats }) => {
               </div>
               <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                 <div className="text-2xl font-bold text-white">24/7</div>
-                <div className="text-xs text-slate-400 mt-0.5">KI-Prüfung</div>
+                <div className="text-xs text-slate-400 mt-0.5">Echtzeit</div>
               </div>
             </div>
           </div>
 
-          {/* Visual card */}
           <div className="relative">
             <div className="absolute -inset-8 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 blur-3xl rounded-full" />
             <div className="relative bg-gradient-to-br from-[#1a2440] to-[#111a2c] border border-white/10 rounded-3xl p-6 shadow-2xl">
