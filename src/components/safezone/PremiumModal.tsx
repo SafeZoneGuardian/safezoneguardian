@@ -4,7 +4,6 @@ import { X, Crown, Map, Bell, TrendingUp, Shield, Check } from 'lucide-react';
 interface PremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
 }
 
 const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose }) => {
@@ -27,8 +26,12 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose }) => {
 
       <div className="relative w-full max-w-md bg-[#0f1622] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
 
+        {/* Header */}
         <div className="relative bg-gradient-to-br from-cyan-500/20 to-blue-600/20 p-6 border-b border-white/10">
-          <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+          <button 
+            onClick={onClose} 
+            className="absolute top-4 right-4 text-slate-400 hover:text-white transition"
+          >
             <X className="w-6 h-6" />
           </button>
 
@@ -49,6 +52,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
+        {/* Features */}
         <div className="p-6 space-y-3">
           {features.map((f, i) => (
             <div key={i} className="flex items-center gap-3">
@@ -61,6 +65,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose }) => {
           ))}
         </div>
 
+        {/* Stripe Button */}
         <div className="px-6 pb-8 space-y-3">
           <button
             onClick={handleStripe}
