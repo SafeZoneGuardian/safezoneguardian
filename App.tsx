@@ -35,23 +35,29 @@ const App = () => {
     }, 1200);
   }, []);
 
-  // === CACHE FIX GEGEN WHITE SCREEN ===
+  // === STARKER CACHE-FIX GEGEN WHITE SCREEN ===
   useEffect(() => {
+    // Service Worker komplett entfernen
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((reg) => reg.unregister());
       });
     }
 
+    // Alle Caches löschen
     if (window.caches) {
       window.caches.keys().then((names) => {
         names.forEach((name) => window.caches.delete(name));
       });
     }
 
-    try {
-      localStorage.setItem('szg_version', Date.now().toString());
-    } catch (e) {}
+    // Force reload nach Cache-Clear
+    const version = localStorage.getItem('szg_version');
+    const currentTime = Date.now().toString();
+    
+    if (!version || parseInt(version) < currentTime - 3600000) { // alle Stunde neu
+      localStorage.setItem('szg_version', currentTime);
+    }
   }, []);
 
   return (
