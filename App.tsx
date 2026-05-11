@@ -12,11 +12,9 @@ const queryClient = new QueryClient();
 
 const App = () => {
 
-  // === CRISP CHAT (links) ===
+  // CRISP CHAT (links)
   useEffect(() => {
-    if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) {
-      return;
-    }
+    if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) return;
 
     window.$crisp = [];
     window.CRISP_WEBSITE_ID = "f8df0bc3-ed86-4f5c-bd08-ee77d29ffb48";
@@ -32,32 +30,29 @@ const App = () => {
         window.$crisp.push(["do", "chat:show"]);
         clearInterval(interval);
       }
-    }, 1200);
+    }, 1500);
   }, []);
 
-  // === STARKER CACHE-FIX GEGEN WHITE SCREEN ===
+  // STARKER WHITE-SCREEN FIX
   useEffect(() => {
-    // Service Worker komplett entfernen
+    // Service Workers killen
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((reg) => reg.unregister());
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
       });
     }
 
-    // Alle Caches löschen
+    // Caches killen
     if (window.caches) {
-      window.caches.keys().then((names) => {
-        names.forEach((name) => window.caches.delete(name));
+      window.caches.keys().then(names => {
+        names.forEach(name => window.caches.delete(name));
       });
     }
 
-    // Force reload nach Cache-Clear
-    const version = localStorage.getItem('szg_version');
-    const currentTime = Date.now().toString();
-    
-    if (!version || parseInt(version) < currentTime - 3600000) { // alle Stunde neu
-      localStorage.setItem('szg_version', currentTime);
-    }
+    // Force new version
+    try {
+      localStorage.setItem('szg_deploy', Date.now().toString());
+    } catch (e) {}
   }, []);
 
   return (
