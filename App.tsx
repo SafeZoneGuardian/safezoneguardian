@@ -12,7 +12,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
 
-  // === CRISP CHAT (auf der linken Seite) ===
+  // === CRISP CHAT (links) ===
   useEffect(() => {
     if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) {
       return;
@@ -26,7 +26,6 @@ const App = () => {
     script.async = true;
     document.head.appendChild(script);
 
-    // Chat nach links verschieben
     const interval = setInterval(() => {
       if (window.$crisp) {
         window.$crisp.push(["config", "position:reverse", [true]]);
@@ -36,27 +35,20 @@ const App = () => {
     }, 1200);
   }, []);
 
-  // === STARKER CACHE FIX GEGEN WHITE SCREEN ===
+  // === CACHE FIX GEGEN WHITE SCREEN ===
   useEffect(() => {
-    // Service Worker deaktivieren
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((reg) => {
-          reg.unregister();
-        });
+        registrations.forEach((reg) => reg.unregister());
       });
     }
 
-    // Alle Browser-Caches löschen
     if (window.caches) {
       window.caches.keys().then((names) => {
-        names.forEach((name) => {
-          window.caches.delete(name);
-        });
+        names.forEach((name) => window.caches.delete(name));
       });
     }
 
-    // Versionierung für besseres Cache-Busting
     try {
       localStorage.setItem('szg_version', Date.now().toString());
     } catch (e) {}
