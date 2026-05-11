@@ -12,9 +12,11 @@ const queryClient = new QueryClient();
 
 const App = () => {
 
-  // CRISP CHAT (links)
+  // === CRISP CHAT (stark nach links) ===
   useEffect(() => {
-    if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) return;
+    if (window.$crisp || document.querySelector('script[src*="crisp.chat"]')) {
+      return;
+    }
 
     window.$crisp = [];
     window.CRISP_WEBSITE_ID = "f8df0bc3-ed86-4f5c-bd08-ee77d29ffb48";
@@ -24,53 +26,42 @@ const App = () => {
     script.async = true;
     document.head.appendChild(script);
 
+    // Warte länger und setze Position aggressiv auf links
     const interval = setInterval(() => {
       if (window.$crisp) {
         window.$crisp.push(["config", "position:reverse", [true]]);
         window.$crisp.push(["do", "chat:show"]);
+        // Extra CSS Override für mehr Sicherheit
+        const style = document.createElement('style');
+        style.innerHTML = `
+          .crisp-client .cc-chat-window { left: 20px !important; right: auto !important; }
+        `;
+        document.head.appendChild(style);
+        
         clearInterval(interval);
       }
     }, 1500);
   }, []);
 
-  // STARKER WHITE-SCREEN FIX
+  // === CACHE FIX GEGEN WHITE SCREEN ===
   useEffect(() => {
-    // Service Workers killen
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(reg => reg.unregister());
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((reg) => reg.unregister());
       });
     }
 
-    // Caches killen
     if (window.caches) {
-      window.caches.keys().then(names => {
-        names.forEach(name => window.caches.delete(name));
+      window.caches.keys().then((names) => {
+        names.forEach((name) => window.caches.delete(name));
       });
     }
 
-    // Force new version
     try {
-      localStorage.setItem('szg_deploy', Date.now().toString());
+      localStorage.setItem('szg_version', Date.now().toString());
     } catch (e) {}
   }, []);
 
   return (
     <ThemeProvider defaultTheme="dark">
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
-  );
-};
-
-export default App;
