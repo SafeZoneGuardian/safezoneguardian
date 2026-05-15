@@ -43,10 +43,9 @@ const Footer: React.FC = () => {
               <span className="text-xl font-extrabold text-cyan-400">SafeZoneGuardian</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
-              Eine Community-Plattform für mehr Sicherheit in deutschen Städten.
+              Eine Community-Plattform für mehr Sicherheit in deutschen Städten. 
               Bürger melden, Community profitiert.
             </p>
-
             <form onSubmit={subscribe} className="mt-6 max-w-sm">
               <label className="text-xs font-semibold text-slate-300 mb-2 block">
                 Newsletter abonnieren
@@ -72,8 +71,7 @@ const Footer: React.FC = () => {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : done ? (
                     <>
-                      <Check className="w-4 h-4" />
-                      Danke
+                      <Check className="w-4 h-4" /> Danke
                     </>
                   ) : (
                     'Abonnieren'
@@ -84,18 +82,12 @@ const Footer: React.FC = () => {
           </div>
 
           {[
-            {
-              title: 'Plattform',
-              links: ['Vorfälle', 'Städte', 'Karte', 'Statistiken'],
-            },
-            {
-              title: 'Community',
-              links: ['Vorfall melden', 'Richtlinien', 'Hilfe'],
-            },
-            {
-              title: 'Rechtliches',
+            { title: 'Plattform', links: ['Vorfälle', 'Städte', 'Karte', 'Statistiken'] },
+            { title: 'Community', links: ['Vorfall melden', 'Richtlinien', 'Hilfe'] },
+            { 
+              title: 'Rechtliches', 
               links: ['Datenschutz', 'AGB', 'Impressum', 'Kontakt'],
-              actions: { 'Impressum': () => setShowImpressum(true) },
+              actions: { 'Impressum': () => setShowImpressum(true) }
             },
           ].map((col) => (
             <div key={col.title} className="lg:col-span-2">
@@ -123,50 +115,45 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-2">
             <h4 className="font-bold text-white mb-4">Notfall</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
-              <li>
-                <span className="font-semibold text-red-400">110</span> – Polizei
-              </li>
-              <li>
-                <span className="font-semibold text-red-400">112</span> – Rettung &
-                Feuer
-              </li>
-              <li>
-                <span className="font-semibold text-amber-400">116 116</span> – Sperr-Notruf
-              </li>
+              <li><span className="font-semibold text-red-400">110</span> – Polizei</li>
+              <li><span className="font-semibold text-red-400">112</span> – Rettung & Feuer</li>
+              <li><span className="font-semibold text-amber-400">116 116</span> – Sperr-Notruf</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} SafeZoneGuardian. Made with care in Germany.</p>
-          <p>
-            SafeZoneGuardian ersetzt keinen Notruf. Im akuten Notfall wähle bitte 110.
-          </p>
+          <p>SafeZoneGuardian ersetzt keinen Notruf. Im akuten Notfall wähle bitte 110.</p>
         </div>
       </div>
 
-      {/* Impressum Modal */}
       {showImpressum && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowImpressum(false)} />
           <div className="relative w-full max-w-md bg-[#0f1622] border border-white/10 rounded-2xl shadow-2xl p-8">
-            <button
-              onClick={() => setShowImpressum(false)}
+            <button 
+              onClick={() => setShowImpressum(false)} 
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold"
             >
               ×
             </button>
             <h2 className="text-2xl font-bold text-white mb-6">Impressum</h2>
-            <div className="space-y-2 text-slate-300 text-sm leading-relaxed">
+            <div className="space-y-3 text-slate-300 text-sm leading-relaxed">
               <p className="font-semibold text-white">Angaben gemäß § 5 TMG</p>
               <p>Felix Hakemann</p>
-              <p>28355 Oberneuland</p>
-              <p>Bremen</p>
-              <p className="pt-4 font-semibold text-white">Kontakt</p>
-              <p>SafeZoneGuardian</p>
-              <p className="pt-4 text-slate-500 text-xs">
-                Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Felix Hakemann
-              </p>
+              <p>28355 Bremen</p>
+              <p>Oberneuland</p>
+              
+              <div className="pt-3">
+                <p className="font-semibold text-white">Kontakt</p>
+                <p>E-Mail: kontakt@safezoneguardian.de</p>
+              </div>
+              
+              <div className="pt-3 text-slate-400 text-xs border-t border-white/5 mt-3">
+                <p>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</p>
+                <p className="font-semibold text-slate-300 mt-1">Felix Hakemann, 28355 Bremen Oberneuland</p>
+              </div>
             </div>
           </div>
         </div>
