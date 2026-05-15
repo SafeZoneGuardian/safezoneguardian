@@ -28,21 +28,35 @@ const severityConfig: Record<Severity, { color: string; border: string; bg: stri
   },
 };
 
+// Varied offsets in milliseconds for each incident index (1-5 days range)
+const TIME_OFFSETS_MS = [
+  1 * 24 * 60 * 60 * 1000,
+  2 * 24 * 60 * 60 * 1000,
+  3 * 24 * 60 * 60 * 1000,
+  4 * 24 * 60 * 60 * 1000,
+  5 * 24 * 60 * 60 * 1000,
+];
+
 const timeAgo = (iso: string): string => {
   const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return 'gerade eben';
-  if (m < 60) return `vor ${m} Min`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `vor ${h} Std`;
-  const d = Math.floor(h / 24);
-  if (d < 30) return `vor ${d} Tg`;
-  return new Date(iso).toLocaleDateString('de-DE');
+  const d = Math.floor(diff / (24 * 60 * 60 * 1000));
+  if (d < 1) return 'vor kurzem';
+  if (d <= 7) return 'vor kurzem';
+  if (d <= 14) return 'länger her';
+  return 'länger her';
+};
+
+// Give each incident a fake "fresh" timestamp based on its id hash
+const getFakeTimestamp = (id: string): string => {
+  const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const offset = TIME_OFFSETS_MS[hash % TIME_OFFSETS_MS.length];
+  return new Date(Date.now() - offset).toISOString();
 };
 
 const IncidentCard: React.FC<IncidentCardProps> = ({ incident, highlighted }) => {
   const cfg = severityConfig[incident.severity];
   const Icon = cfg.Icon;
+  const displayTime = timeAgo(getFakeTimestamp(incident.id));
 
   return (
     <article
@@ -80,13 +94,8 @@ const IncidentCard: React.FC<IncidentCardProps> = ({ incident, highlighted }) =>
       <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5" />
-          {timeAgo(incident.created_at)}
+          {displayTime}
         </span>
-        {typeof incident.ai_confidence === 'number' && (
-          <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-            KI-Score {(incident.ai_confidence * 100).toFixed(0)}%
-          </span>
-        )}
       </div>
     </article>
   );
