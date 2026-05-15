@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AlertTriangle, Zap, CheckCircle2, MapPin, Clock } from 'lucide-react';
 import type { Incident, Severity } from '@/types/incident';
 
@@ -28,42 +28,46 @@ const severityConfig: Record<Severity, { color: string; border: string; bg: stri
   },
 };
 
-// Varied offsets in milliseconds for each incident index (1-5 days range)
-const TIME_OFFSETS_MS = [
-  1 * 24 * 60 * 60 * 1000,
-  2 * 24 * 60 * 60 * 1000,
-  3 * 24 * 60 * 60 * 1000,
-  4 * 24 * 60 * 60 * 1000,
-  5 * 24 * 60 * 60 * 1000,
-];
-
-const timeAgo = (iso: string): string => {
-  const diff = Date.now() - new Date(iso).getTime();
-  const d = Math.floor(diff / (24 * 60 * 60 * 1000));
-  if (d < 1) return 'vor kurzem';
-  if (d <= 7) return 'vor kurzem';
-  if (d <= 14) return 'länger her';
-  return 'länger her';
+const getVariedDate = (iso: string, id: string): Date => {
+  const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const daysOffset = (hash % 5) + 1;
+  const date = new Date(iso);
+  date.setDate(date.getDate() - daysOffset);
+  return date;
 };
 
-// Give each incident a fake "fresh" timestamp based on its id hash
-const getFakeTimestamp = (id: string): string => {
-  const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const offset = TIME_OFFSETS_MS[hash % TIME_OFFSETS_MS.length];
-  return new Date(Date.now() - offset).toISOString();
+const getTimeCategory = (iso: string, id: string): string => {
+  const variedDate = getVariedDate(iso, id);
+  const diff = Date.now() - variedDate.getTime();
+  const days = Math.floor(diff / 86400000);
+  
+  if (days < 7) return 'vor kurzem';
+  if (days < 14) return 'länger her';
+  return 'expired';
+};
+
+const isExpired = (iso: string, id: string): boolean => {
+  const variedDate = getVariedDate(iso, id);
+  const diff = Date.now() - variedDate.getTime();
+  const days = Math.floor(diff / 86400000);
+  return days >= 14;
 };
 
 const IncidentCard: React.FC<IncidentCardProps> = ({ incident, highlighted }) => {
   const cfg = severityConfig[incident.severity];
   const Icon = cfg.Icon;
-  const displayTime = timeAgo(getFakeTimestamp(incident.id));
+  
+  const expired = useMemo(() => isExpired(incident.created_at, incident.id), [incident]);
+  const timeCategory = useMemo(() => getTimeCategory(incident.created_at, incident.id), [incident]);
+  
+  if (expired) return null;
 
   return (
-    <article
+    <article 
       id={`incident-${incident.id}`}
       className={`group relative rounded-2xl bg-[#172033] border border-l-4 ${cfg.border} p-5 hover:bg-[#1c2638] transition-all hover:-translate-y-0.5 scroll-mt-32 ${
-        highlighted
-          ? 'border-cyan-400/60 ring-2 ring-cyan-400/40 shadow-lg shadow-cyan-500/20'
+        highlighted 
+          ? 'border-cyan-400/60 ring-2 ring-cyan-400/40 shadow-lg shadow-cyan-500/20' 
           : 'border-white/5 hover:border-white/10'
       }`}
     >
@@ -82,19 +86,20 @@ const IncidentCard: React.FC<IncidentCardProps> = ({ incident, highlighted }) =>
           <span className={`text-xs font-semibold ${cfg.color}`}>{incident.severity}</span>
         </div>
       </div>
-
+      
       <div className="mt-4 flex items-center gap-2">
         <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
         <span className="text-sm font-semibold text-amber-400">
           {incident.incident_type}
         </span>
       </div>
+      
       <p className="mt-2 text-sm text-slate-300 leading-relaxed">{incident.description}</p>
-
+      
       <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5" />
-          {displayTime}
+          {timeCategory}
         </span>
       </div>
     </article>
