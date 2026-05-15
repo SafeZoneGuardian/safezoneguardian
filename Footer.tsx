@@ -5,6 +5,7 @@ const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [showImpressum, setShowImpressum] = useState(false);
 
   const subscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +44,7 @@ const Footer: React.FC = () => {
             </div>
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
               Eine Community-Plattform für mehr Sicherheit in deutschen Städten.
-              Bürger melden, KI prüft, alle profitieren.
+              Bürger melden, Community profitiert.
             </p>
 
             <form onSubmit={subscribe} className="mt-6 max-w-sm">
@@ -89,11 +90,12 @@ const Footer: React.FC = () => {
             },
             {
               title: 'Community',
-              links: ['Vorfall melden', 'Richtlinien', 'KI-Moderation', 'Hilfe'],
+              links: ['Vorfall melden', 'Richtlinien', 'Hilfe'],
             },
             {
               title: 'Rechtliches',
               links: ['Datenschutz', 'AGB', 'Impressum', 'Kontakt'],
+              actions: { 'Impressum': () => setShowImpressum(true) },
             },
           ].map((col) => (
             <div key={col.title} className="lg:col-span-2">
@@ -103,7 +105,11 @@ const Footer: React.FC = () => {
                   <li key={l}>
                     <a
                       href="#"
-                      onClick={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const action = (col as any).actions?.[l];
+                        if (action) action();
+                      }}
                       className="text-sm text-slate-400 hover:text-cyan-400 transition"
                     >
                       {l}
@@ -138,6 +144,33 @@ const Footer: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Impressum Modal */}
+      {showImpressum && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowImpressum(false)} />
+          <div className="relative w-full max-w-md bg-[#0f1622] border border-white/10 rounded-2xl shadow-2xl p-8">
+            <button
+              onClick={() => setShowImpressum(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-bold text-white mb-6">Impressum</h2>
+            <div className="space-y-2 text-slate-300 text-sm leading-relaxed">
+              <p className="font-semibold text-white">Angaben gemäß § 5 TMG</p>
+              <p>Felix Hakemann</p>
+              <p>28355 Oberneuland</p>
+              <p>Bremen</p>
+              <p className="pt-4 font-semibold text-white">Kontakt</p>
+              <p>SafeZoneGuardian</p>
+              <p className="pt-4 text-slate-500 text-xs">
+                Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Felix Hakemann
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </footer>
   );
 };
