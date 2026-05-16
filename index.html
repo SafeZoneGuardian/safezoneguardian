@@ -33,9 +33,17 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
+      // Alle alten Service Worker deregistrieren und Cache leeren
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js');
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (let r of registrations) {
+            r.unregister();
+          }
+        });
+        caches.keys().then(function(keys) {
+          keys.forEach(function(key) {
+            caches.delete(key);
+          });
         });
       }
     </script>
