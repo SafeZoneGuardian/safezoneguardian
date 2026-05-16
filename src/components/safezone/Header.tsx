@@ -38,6 +38,15 @@ const SZGLogo = () => (
       <filter id="hShadow">
         <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#000d1f" floodOpacity="0.6"/>
       </filter>
+      <filter id="hLogoGlow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="6" result="blur" />
+        <feFlood floodColor="#00e5ff" floodOpacity="0.6" result="color" />
+        <feComposite in="color" in2="blur" operator="in" result="glow" />
+        <feMerge>
+          <feMergeNode in="glow" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
       <clipPath id="hShieldClip">
         <path d="M200 45 L310 85 L310 195 Q310 295 200 355 Q90 295 90 195 L90 85 Z"/>
       </clipPath>
@@ -70,8 +79,9 @@ const Header: React.FC<HeaderProps> = ({ onReport, onScrollTo }) => {
           className="flex items-center gap-3 group"
         >
           <div className="relative">
-            <div className="absolute inset-0 bg-cyan-400/20 blur-xl rounded-2xl group-hover:bg-cyan-400/40 transition" />
-            <div className="relative w-11 h-11">
+            <div className="absolute inset-0 bg-cyan-400/30 blur-2xl rounded-full group-hover:bg-cyan-400/60 transition-all duration-300 scale-110" />
+            <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
+            <div className="relative w-16 h-16 drop-shadow-[0_0_12px_rgba(0,229,255,0.8)]">
               <SZGLogo />
             </div>
           </div>
